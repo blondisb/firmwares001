@@ -21,13 +21,13 @@ void loop() {
     float pitch = kalmanY.getAngle(mpu.pitch, mpu.gyroY/131.0, dt);
 
     Serial.print("Acc X: "); Serial.print(mpu.accX);
-    Serial.print(" Y: "); Serial.print(mpu.accY);
-    Serial.print(" Z: "); Serial.print(mpu.accZ);
-    Serial.print(" | Gyro X: "); Serial.print(mpu.gyroX);
-    Serial.print(" Y: "); Serial.print(mpu.gyroY);
-    Serial.print(" Z: "); Serial.print(mpu.gyroZ);
-    Serial.print(" | Roll: "); Serial.print(roll);
-    Serial.print(" Pitch: "); Serial.println(pitch);
+    Serial.print("\tY: "); Serial.print(mpu.accY);
+    Serial.print("\tZ: "); Serial.print(mpu.accZ);
+    Serial.print("\t| Gyro X: "); Serial.print(mpu.gyroX);
+    Serial.print("\tY: "); Serial.print(mpu.gyroY);
+    Serial.print("\tZ: "); Serial.print(mpu.gyroZ);
+    Serial.print("\t| Roll: "); Serial.print(roll);
+    Serial.print("\tPitch: "); Serial.println(pitch);
 
     delay(10);
 }
