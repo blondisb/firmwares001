@@ -3,6 +3,8 @@
 
 // put function declarations here:
 float RateRoll, RatePitch, RateYaw;
+float RateCalibrationRoll, RateCalibrationPitch, RateCalibrationYaw;
+int RateCalibrationNumber;
 
 void gyro_signals(void){
   Wire.beginTransmission(0x68);
@@ -37,6 +39,8 @@ int r = 0;
 int g = 0;
 int b = 0;
 
+char buffer1[100];
+
 void setup() {
   strip.begin();  // initialize the strip
   strip.show();   // make sure it is visible
@@ -57,17 +61,36 @@ void setup() {
   Wire.write(0x6B);
   Wire.write(0x00);
   Wire.endTransmission();
+  //--
+  for (RateCalibrationNumber = 0;
+       RateCalibrationNumber < 2000;
+       RateCalibrationNumber++ ){
+        gyro_signals();
+        RateCalibrationRoll += RateRoll;
+        RateCalibrationPitch += RatePitch;
+        RateCalibrationYaw += RateYaw;
+        delay(1);
+  }
+  RateCalibrationRoll/=2000;
+  RateCalibrationPitch/=2000;
+  RateCalibrationYaw/=2000;
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   gyro_signals();
+  //.
+  RatePitch -= RateCalibrationPitch;
+  RateRoll -= RateCalibrationRoll;
+  RateYaw -= RateCalibrationYaw;
+  //.
   Serial.print("roll_rate ");
   Serial.print(RateRoll);
   Serial.print(" \t pitch_rate ");
   Serial.print(RatePitch);
   Serial.print(" \t yaw_rate ");
   Serial.println(RateYaw);
+
 
   if (RateRoll > 100) r = 255;
   else if (RateRoll < -100) r= 0;
