@@ -68,12 +68,12 @@ void loop(){
   Serial.print("signal1= ");
   Serial.print(AngleRoll);
   Serial.print(" \t signal2= ");
-  Serial.print(AnglePitch);
+  Serial.print(0);
   Serial.print(" \t signal3= ");
-  Serial.print(AccX);
+  Serial.print(RateRoll);
   Serial.print(" \t signal4= ");
-  Serial.print(AccY);
+  Serial.print(0);
   Serial.print(" \t signal5= ");
-  Serial.println(AccZ);
+  Serial.println(0);
   delay(50);
 }
