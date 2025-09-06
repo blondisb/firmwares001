@@ -53,7 +53,25 @@ void loop() {
   pixels.show();
   Serial.println("Color Azul");
   delay(700);
-  
+
+  // yellow
+  pixels.setPixelColor(0, pixels.Color(255, 150, 0));
+  pixels.show();
+  Serial.println("Color Amarillo");
+  delay(700);
+
+  // purple
+  pixels.setPixelColor(0, pixels.Color(180, 0, 255)); 
+  pixels.show();
+  Serial.println("Color Morado");
+  delay(700);
+
+  // cyan
+  pixels.setPixelColor(0, pixels.Color(0, 255, 255));
+  pixels.show();
+  Serial.println("Color Cyan");
+  delay(700);
+
 
   // Apagado
   pixels.clear();
