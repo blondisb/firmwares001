@@ -1,0 +1,2 @@
+En windows, instalar ZADIG para instalar el driver USB de la RP2040 ZERO. 
+Entonces así, Platformio (picotool) podra subir el firmware  a la board.
