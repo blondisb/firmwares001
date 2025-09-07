@@ -1,5 +1,7 @@
 #include <Wire.h>
 #include <Adafruit_NeoPixel.h>
+#include <Servo.h>
+
 
 float RateRoll, RatePitch, RateYaw;
 float RateCalibrationRoll, RateCalibrationPitch, RateCalibrationYaw;
@@ -11,6 +13,25 @@ uint32_t LoopTimer;
 
 float AccZInertial;
 float VelocityVertical;
+
+
+//----------------------------------------------------------------------------
+Servo servoPitch; // timón de cola
+Servo servoRoll;  // alerones
+// --- PID Pitch ---
+float setpointPitch = 0;   // objetivo (ej. nivelado)
+float KpPitch = 3.0, KiPitch = 0.01, KdPitch = 1.5;
+float errorPitch, prevErrorPitch = 0, integralPitch = 0;
+// --- PID Roll ---
+float setpointRoll = 0;
+float KpRoll = 3.0, KiRoll = 0.01, KdRoll = 1.5;
+float errorRoll, prevErrorRoll = 0, integralRoll = 0;
+// --- Timer para deltaT ---
+unsigned long prevTime;
+//----------------------------------------------------------------------------
+
+
+
 
 //Predictes angles and uncertainty 
 float KalmanAngleRoll=0, KalmanUncertaintyAngleRoll=2*2;
@@ -109,6 +130,13 @@ void setup(){
   RateCalibrationPitch/=2000;
   RateCalibrationYaw/=2000;
   LoopTimer=micros();
+
+  // Iniciar servos
+  servoPitch.attach(7); // Pin D5 (puedes cambiarlo)
+  servoRoll.attach(8);  // Pin D6 (puedes cambiarlo)
+  servoPitch.write(90);
+  servoRoll.write(90);
+  prevTime = millis();
 }
 
 
@@ -134,20 +162,48 @@ void loop(){
   KalmanAnglePitch = Kalman1DOutput[0];
   KalmanUncertaintyAnglePitch = Kalman1DOutput[1];
 
+  
+  // --- Delta tiempo ---
+  unsigned long now = millis();
+  float dt = (now - prevTime) / 1000.0;
+  prevTime = now;
+
+  // --- Control PID Pitch ---
+  errorPitch = setpointPitch - KalmanAnglePitch;
+  integralPitch += errorPitch * dt;
+  float derivativePitch = (errorPitch - prevErrorPitch) / dt;
+  float outputPitch = KpPitch * errorPitch + KiPitch * integralPitch + KdPitch * derivativePitch;
+  prevErrorPitch = errorPitch;
+
+  // --- Control PID Roll ---
+  errorRoll = setpointRoll - KalmanAngleRoll;
+  integralRoll += errorRoll * dt;
+  float derivativeRoll = (errorRoll - prevErrorRoll) / dt;
+  float outputRoll = KpRoll * errorRoll + KiRoll * integralRoll + KdRoll * derivativeRoll;
+  prevErrorRoll = errorRoll;
+
+  // --- Mover servos ---
+  int servoPitchPos = constrain(90 + outputPitch, 0, 180);
+  int servoRollPos = constrain(90 + outputRoll, 0, 180);
+  servoPitch.write(servoPitchPos);
+  servoRoll.write(servoRollPos);
+
   Serial.print("signal1= ");
-  Serial.print(KalmanAngleRoll);
+  Serial.print(KalmanAnglePitch);
   Serial.print(" \t signal2= ");
-  Serial.print(RateYaw);
+  Serial.print(servoPitchPos);
   Serial.print(" \t signal3= ");
-  Serial.print(KalmanAnglePitch+90);
+  Serial.print(0);
   Serial.print(" \t signal4= ");
-  Serial.print(VelocityVertical); //Removing initial offset
+  Serial.print(0); //Removing initial offset
   Serial.print(" \t signal5= ");
   Serial.println(0);
+
+  delay(10); // Pequeña pausa para estabilidad
   
-  while (micros() - LoopTimer < 4000){
-    LoopTimer = micros();
-  }
+  // while (micros() - LoopTimer < 4000){
+  //   LoopTimer = micros();
+  // }
 }
 
 
